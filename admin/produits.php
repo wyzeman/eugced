@@ -4,7 +4,7 @@ require_once("includes/init.php");
 require_once("includes/classes/pages/CustomPage.php");
 
 $page = new CustomPage(UserLevel::ADMIN);
-$page->setTitle(T_("Produit"));
+$page->setTitle(T_("Produits"));
 $page->setMenu($MENU_ITEMS);
 
 
@@ -21,20 +21,7 @@ function displaySuperTable() {
     $categories = $DB->select("*","tb_categories");
 
 
-/*    if (count($categories) > 0) {
-        for ($i=0;$i<count($categories);$i++) {
-            $newgroups[$i]["id"] = $categories[$i]["id"];
-            $newgroups[$i]["value"] = $categories[$i]["id"];
-            $newgroups[$i]["label"] = $categories[$i]["name"];
-            $newgroups[$i]["name"] = $categories[$i]["name"];
 
-        }
-
-    } else {
-        $newgroups = array();
-    }
-
-    $categories = $newgroups;*/
 
 
 
@@ -110,7 +97,6 @@ function displaySuperTable() {
 
             ],
 
-
         ];
 
 
@@ -118,7 +104,16 @@ function displaySuperTable() {
     class MySuperTable extends SuperTable
     {
 
+        public function callbackFilterRow($row) {
 
+            global $DB;
+
+
+            $row["id_category"] = $DB->getScalar("name","tb_categories", array("id","=",$row["id"]));
+
+
+            return $row;
+        }
     }
 
 
@@ -126,13 +121,13 @@ function displaySuperTable() {
 
 
 
-    $st = new MySuperTable("tb_produits");
+    $st = new MySuperTable("tb_products");
     $st->setLabel("title_table",T_("Produits"));
     $st->setLabel("title_add",T_("Ajouter un produit"));
     $st->setLabel("button_add",T_("Ajouter un produit"));
     $st->setLabel("button_modify",T_("Modifier un produit"));
     $st->setFields($fields);
-    $st->SetSortedColumn("tb_produits.id", "DESC");
+    $st->SetSortedColumn("tb_products.id", "DESC");
     $st->setActions(true, true, true, $buttons);
     $st->setSearchable(true);
     //$st->setFilter(T_("Categories"),"id_category",$categories);

@@ -35,6 +35,22 @@ function displaySuperTable() {
                     "modify" => true,
                     "value" => ""
                 ]
+            ],
+            [
+                "label" => T_("Image"),
+                "column" => "@image",
+                "table" => [
+                    "width" => "60px"
+                ],
+                "form" => [
+                    "type" => FormWidget::FORM_ITEM_FILE,
+                    "width" => "300px",
+                    "height" => "200px",
+                    "validation" => "required",
+                    "add" => true,
+                    "modify" => true,
+                    "value" => ""
+                ]
             ]
         ];
 
@@ -43,6 +59,21 @@ function displaySuperTable() {
     class MySuperTable extends SuperTable
     {
 
+        public function callbackFilterRow($row) {
+
+            global $DB;
+
+
+            $items = $DB->select("*","tb_categories");
+
+
+            foreach($items as &$item){
+                $row["image"] = '<img class="item_image" src="' . 'images/categories/'. $row["id"] . '_mini_thumb.png">';
+            }
+
+
+            return $row;
+        }
 
     }
 

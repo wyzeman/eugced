@@ -193,6 +193,8 @@ class SuperTable {
                 if ($column == "") {
                     // separator
                 } else {
+                    print_r($column);
+
                     $form_items[$i]["value"] = $DB->getSCalar($column["name"], $column["table"], [$column["key"], "=", $id]);
                 }
             }
@@ -255,6 +257,7 @@ class SuperTable {
                 $add_to_fields = true;
 
                 if ($c["column"][0] == '@') {
+                    $c["column"] = ltrim($c["column"], "@");
                     $add_to_fields = false;
                 }
 
