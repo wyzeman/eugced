@@ -31,9 +31,22 @@ function displayPictureForm ($id) {
 
             $image = $INPUT->files->getValue("Image".$i);
             if ($image["size"] != 0) {
+
+                $img = imagecreatefrompng($image["tmp_name"]);
+                $img_out_medium = imagecreatetruecolor(400,250);
+                imagecopyresampled($img_out_medium, $img, 0,0,0,0,400,250, imagesx($img), imagesy($img));
+                $imagename = explode(".",$image["name"]);
+                $path = $dirthumb . "/" . $imagename[0] . "_mini_thumb.png";
+                $path = $dir."/".$imagename[0].".png";
+                imagepng($img_out_medium,$path,9);
+                imagedestroy($img_out_medium);
+                imagedestroy($img);
+                system("/usr/bin/pngquant --force --ext .png ".$path);
+                
+
                 $imgthumb = imagecreatefrompng($image["tmp_name"]);
-                $img_out_medium = imagecreatetruecolor(200, 200);
-                imagecopyresampled($img_out_medium, $imgthumb, 0, 0, 0, 0, 200, 200, imagesx($imgthumb), imagesy($imgthumb));
+                $img_out_medium = imagecreatetruecolor(50, 50);
+                imagecopyresampled($img_out_medium, $imgthumb, 0, 0, 0, 0, 50, 50, imagesx($imgthumb), imagesy($imgthumb));
                 $imagename = explode(".",$image["name"]);
                 $path = $dirthumb . "/" . $imagename[0] . "_mini_thumb.png";
                 imagepng($img_out_medium, $path, 9);
