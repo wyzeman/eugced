@@ -199,4 +199,18 @@ function recursive_rmdir($dir) {
     }
 }
 
-
+function lsfile($dir) {
+    $x=0;
+    $ls=opendir($dir);
+    while(false !== ($lsdir = readdir($ls))) {
+        if(!is_dir($dir."/".$lsdir)) {
+            $flist[$x]=$lsdir;
+            $x++;
+        }
+    }
+//	if (is_array($flist))
+//		{
+//		sort($flist);
+//		}
+    return($flist);
+}

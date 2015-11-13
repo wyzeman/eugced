@@ -8,6 +8,91 @@ $page->setTitle(T_("Produits"));
 $page->setMenu($MENU_ITEMS);
 
 
+function displayPictureForm ($id) {
+
+    global $page, $DB, $INPUT, $TPL;
+
+
+    $dir = "images/products";
+    if(!file_exists($dir)){
+        mkdir($dir);
+    }
+    $dir = $dir."/".$id."/";
+    if(!file_exists($dir)){
+        mkdir($dir);
+    }
+    $dirthumb = $dir."/thumb";
+    if(!file_exists($dirthumb)){
+        mkdir($dirthumb);
+    }
+
+    for ($i=1;$i<=10;$i++) {
+        if ($INPUT->files->keyExists("Image".$i)) {
+
+            $image = $INPUT->files->getValue("Image".$i);
+            if ($image["size"] != 0) {
+                $imgthumb = imagecreatefrompng($image["tmp_name"]);
+                $img_out_medium = imagecreatetruecolor(200, 200);
+                imagecopyresampled($img_out_medium, $imgthumb, 0, 0, 0, 0, 200, 200, imagesx($imgthumb), imagesy($imgthumb));
+                $imagename = explode(".",$image["name"]);
+                $path = $dirthumb . "/" . $imagename[0] . "_mini_thumb.png";
+                imagepng($img_out_medium, $path, 9);
+                imagedestroy($img_out_medium);
+                imagedestroy($imgthumb);
+                system("/usr/bin/pngquant --force --ext .png " . $path);
+            }
+
+            //move_uploaded_file($image["tmp_name"],$dir."/".$image["name"]."_mini_thumb.png");
+        }
+
+    }
+
+    require_once("includes/classes/widgets/FormWidget.php");
+    $form = new FormWidget(T_("Ajouter de nouvelles images pour le produit")." ".$DB->getScalar("name","tb_products",["id","=",$id]),"",FormWidget::FORM_METHOD_POST,"320px","right");
+
+
+    $items = [];
+    $items[] = ["name" => "Image1", "label" => T_("Image 1"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image2", "label" => T_("Image 2"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image3", "label" => T_("Image 3"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image4", "label" => T_("Image 4"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image5", "label" => T_("Image 5"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image6", "label" => T_("Image 6"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image7", "label" => T_("Image 7"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image8", "label" => T_("Image 8"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image9", "label" => T_("Image 9"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+    $items[] = ["name" => "Image10", "label" => T_("Image 10"),  "type" => FormWidget::FORM_ITEM_FILE, "validation" => "true","value"=>""];
+
+
+    $buttons = [
+        ["name" => "add", "icon" => "check", "label" => T_("Save Changes"), "type" => FormWidget::FORM_BUTTON_SUBMIT],
+        ["name" => "cancel", "icon" => "cancel", "label" => T_("Cancel"), "type" => FormWidget::FORM_BUTTON_LINK, "url" => "users.php"],
+    ];
+
+
+    $TPL->assign("form", $form->generate($items, $buttons));
+
+
+
+
+    $galleryfile = lsfile($dirthumb);
+    $gallery = "";
+
+    for ($i=0;$i<count($galleryfile);$i++) {
+        $gallery .= "<img src=\"".$dirthumb."/".$galleryfile[$i]."\">";
+    }
+
+
+    $TPL->assign("gallery", $gallery);
+    $content_data = $TPL->fetch("content_produits_pictures.tpl");
+    $page->setContent($content_data);
+    $page->show();
+
+    die();
+
+}
+
+
 /**
  *
  */
@@ -109,7 +194,7 @@ function displaySuperTable() {
             global $DB;
 
 
-            $row["id_category"] = $DB->getScalar("name","tb_categories", array("id","=",$row["id"]));
+            $row["id_category"] = $DB->getScalar("name","tb_categories", array("id","=",$row["id_category"]));
 
 
             return $row;
@@ -118,6 +203,7 @@ function displaySuperTable() {
 
 
     $buttons = [];
+    $buttons[] = ["id" => "pictures", "label" => "", "icon" => "image", "tooltip" => T_("Gallerie de photos"), "confirm" => false, "before" => true];
 
 
 
@@ -137,6 +223,11 @@ function displaySuperTable() {
 
 }
 
+// Handle user requests
+if ($INPUT->get->keyExists("pictures")) {
 
+    displayPictureForm($INPUT->get->getInt("pictures"));
+
+}
 
 displaySuperTable();

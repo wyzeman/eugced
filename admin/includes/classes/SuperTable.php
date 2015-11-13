@@ -257,8 +257,8 @@ class SuperTable {
                 $add_to_fields = true;
 
                 if ($c["column"][0] == '@') {
-                    $c["column"] = ltrim($c["column"], "@");
                     $add_to_fields = false;
+                    $c["column"] = ltrim($c["column"], "@");
                 }
 
                 if (is_array($c["column"])) {

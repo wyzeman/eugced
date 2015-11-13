@@ -2,7 +2,7 @@
 
 define("CONFIG_CHARSET","utf-8");
 define("CONFIG_TIMEZONE","America/Montreal");
-define("CONFIG_WEBSITE_NAME","Eugced 1.0");
+define("CONFIG_WEBSITE_NAME","Eug & Ced");
 define("CONFIG_WEBSITE_URL","http://localhost/eugced/");
 if (!isset($_SERVER["HTTP_HOST"])) {
     define("CONFIG_WEBSITE_CURRENT_URI", "");
