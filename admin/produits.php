@@ -42,7 +42,7 @@ function displayPictureForm ($id) {
                 imagedestroy($img_out_medium);
                 imagedestroy($img);
                 system("/usr/bin/pngquant --force --ext .png ".$path);
-                
+
 
                 $imgthumb = imagecreatefrompng($image["tmp_name"]);
                 $img_out_medium = imagecreatetruecolor(50, 50);
@@ -86,17 +86,33 @@ function displayPictureForm ($id) {
     $TPL->assign("form", $form->generate($items, $buttons));
 
 
+    require_once("includes/classes/widgets/TableWidget.php");
+    $table =
+
+
+    $columns = array();
+    $columns[] = array("name" => T_("#"), "db_name" => "id","width" => "30px");
+    $columns[] = array("name" => T_("name"), "db_name" => "name", "width" => "160px");
+    $columns[] = array("name" => T_("image"), "db_name" => "image", "width" => "160px");
+
 
 
     $galleryfile = lsfile($dirthumb);
     $gallery = "";
-
     for ($i=0;$i<count($galleryfile);$i++) {
-        $gallery .= "<img src=\"".$dirthumb."/".$galleryfile[$i]."\">";
+        $gallery[$i]["id"] = $i+1;
+        $gallery[$i]["name"] = $galleryfile[$i];
+        $gallery[$i]["image"] = "<img src=\"".$dirthumb."/".$galleryfile[$i]."\"></img>";
     }
 
 
-    $TPL->assign("gallery", $gallery);
+    $table = new TableWidget($gallery, T_("No element!"), "");
+    $table->setActionsWidth(112);
+    $table_gallery = $table->generate($columns, "id", 1, 1, "id", "DESC");
+
+
+
+    $TPL->assign("gallery", $table_gallery);
     $content_data = $TPL->fetch("content_produits_pictures.tpl");
     $page->setContent($content_data);
     $page->show();

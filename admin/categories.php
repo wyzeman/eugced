@@ -96,7 +96,7 @@ function displaySuperTable() {
         }
 
         public function callbackAddPost($items, $foreign_items, $insert_id){
-            global $INPUT, $DB;
+            global $INPUT;
 
             $dir = "images/categories/";
             if(!file_exists($dir)){
@@ -130,11 +130,69 @@ function displaySuperTable() {
                     copy(CONFIG_WEBSITE_PUBLIC_PATH."images/default_item.png",$dir."/".$insert_id.".png");
                 }
             }
-
-
-
         }
 
+        public function callbackModifyPre($items, $foreign_items, $modify_id) {
+            global $INPUT;
+
+            if (isset($items["image"])) {
+                unset($items["image"]);
+            }
+
+            if ($INPUT->files->keyExists("image")){
+                $photo = $INPUT->files->getValue("image");
+                if ($photo["size"] > 0){
+                    if ($photo["type"] != "image/png") {
+                        die_warning("categories.php",T_("Invalid file type, please use a PNG image."));
+                    }
+
+                    if ($photo["error"] != 0) {
+                        die_warning("categories.php",T_("An error occurred while trying to upload your image."));
+                    }
+                }
+            }
+
+            return $items;
+        }
+
+        public function callbackModifyPost($items, $foreign_items, $modify_id) {
+
+            global $INPUT;
+
+
+            $dir = "images/categories/";
+            if(!file_exists($dir)){
+                mkdir($dir);
+            }
+            if ($INPUT->files->keyExists("image")){
+
+                $image = $INPUT->files->getValue("image");
+                if ($image["size"] != 0){
+
+                    $img = imagecreatefrompng($image["tmp_name"]);
+                    $img_out_medium = imagecreatetruecolor(400,250);
+                    imagecopyresampled($img_out_medium, $img, 0,0,0,0,400,250, imagesx($img), imagesy($img));
+                    $path = $dir."/".$modify_id.".png";
+                    imagepng($img_out_medium,$path,9);
+                    imagedestroy($img_out_medium);
+                    imagedestroy($img);
+                    system("/usr/bin/pngquant --force --ext .png ".$path);
+
+                    $imgthumb = imagecreatefrompng($image["tmp_name"]);
+                    $img_out_medium = imagecreatetruecolor(50,50);
+                    imagecopyresampled($img_out_medium, $imgthumb, 0,0,0,0,50,50, imagesx($imgthumb), imagesy($imgthumb));
+                    $path = $dir."/".$modify_id."_mini_thumb.png";
+                    imagepng($img_out_medium,$path,9);
+                    imagedestroy($img_out_medium);
+                    imagedestroy($imgthumb);
+                    system("/usr/bin/pngquant --force --ext .png ".$path);
+
+                    //move_uploaded_file($image["tmp_name"],$dir."/".$insert_id."_mini_thumb.png");
+                }else{
+                    copy(CONFIG_WEBSITE_PUBLIC_PATH."images/default_item.png",$dir."/".$modify_id.".png");
+                }
+            }
+        }
 
 
     }

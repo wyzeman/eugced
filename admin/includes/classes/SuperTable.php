@@ -168,6 +168,7 @@ class SuperTable {
 
         for ($i=0;$i<count($form_items);$i++) {
             if (array_key_exists($form_items[$i]["name"], $values)) {
+
                 switch($form_items[$i]["type"]) {
                     case FormWidget::FORM_ITEM_AUTOCOMPLETE:
                         $form_items[$i]["value"]["text"] = $values[$form_items[$i]["name"]];
@@ -188,15 +189,22 @@ class SuperTable {
                 }
             } else {
 
-                // Foreign item or separator
-                $column = $form_items[$i]["column"];
-                if ($column == "") {
-                    // separator
-                } else {
-                    print_r($column);
+                switch($form_items[$i]["type"]) {
+                    case FormWidget::FORM_ITEM_FILE:
+                        break;
+                    default:
+                        $column = $form_items[$i]["column"];
+                        if ($column == "") {
+                            // separator
+                        } else {
 
-                    $form_items[$i]["value"] = $DB->getSCalar($column["name"], $column["table"], [$column["key"], "=", $id]);
+                            $form_items[$i]["value"] = $DB->getSCalar($column["name"], $column["table"], [$column["key"], "=", $id]);
+                        }
+                        break;
                 }
+                // Foreign item or separator
+
+
             }
 
             if ($form_items[$i]["type"] == FormWidget::FORM_ITEM_WIDGET) {
