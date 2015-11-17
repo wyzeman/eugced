@@ -200,14 +200,17 @@ function recursive_rmdir($dir) {
 }
 
 function lsfile($dir) {
-    $x=0;
+    $i=0;
     $ls=opendir($dir);
+    $flist=array();
     while(false !== ($lsdir = readdir($ls))) {
         if(!is_dir($dir."/".$lsdir)) {
-            $flist[$x]=$lsdir;
-            $x++;
+            $flist[$i]=$lsdir;
+            $i++;
         }
     }
+
+
 //	if (is_array($flist))
 //		{
 //		sort($flist);

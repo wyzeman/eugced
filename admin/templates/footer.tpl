@@ -25,7 +25,7 @@
 {/literal}
 
 <div class="footer" id="layout" style="padding-top:20px;padding-bottom:20px">
-        &copy; {t}2015 tous droits réservés{/t} <b><a href="http://www.3btech.ca" class="link_light">3b solutions technologiques</a></b>
+        &copy; {t}2015 tous droits réservés{/t} <b><a href="http://www.3btech.ca" class="link_light">3B solutions technologiques</a></b>
 
 
 

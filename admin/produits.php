@@ -12,23 +12,45 @@ function displayPictureForm ($id) {
 
     global $page, $DB, $INPUT, $TPL;
 
-
     $dir = "images/products";
-    if(!file_exists($dir)){
+    if (!file_exists($dir)) {
         mkdir($dir);
     }
     $dir = $dir."/".$id."/";
-    if(!file_exists($dir)){
+    if (!file_exists($dir)) {
         mkdir($dir);
     }
-    $dirthumb = $dir."/thumb";
-    if(!file_exists($dirthumb)){
+    $dirthumb = $dir."thumb/";
+    if (!file_exists($dirthumb)) {
         mkdir($dirthumb);
     }
 
+
+    $galleryfile = lsfile($dir);
+    $gallerythumbfile = lsfile($dirthumb);
+
+    if (count($galleryfile) == 0) {
+        $galleryfile = array();
+    }
+
+    if (count($gallerythumbfile) == 0) {
+        $gallerythumbfile = array();
+    }
+
+
+    if ($INPUT->get->keyExists("delimage")) {
+
+        unlink($dir.$galleryfile[$INPUT->get->getInt("delimage")]);
+        unlink($dirthumb.$gallerythumbfile[$INPUT->get->getInt("delimage")]);
+        die_redirect("produits.php?pictures=".$id);
+    }
+
+
+    $newimage = false;
+
     for ($i=1;$i<=10;$i++) {
         if ($INPUT->files->keyExists("Image".$i)) {
-
+            $newimage = true;
             $image = $INPUT->files->getValue("Image".$i);
             if ($image["size"] != 0) {
 
@@ -54,10 +76,11 @@ function displayPictureForm ($id) {
                 imagedestroy($imgthumb);
                 system("/usr/bin/pngquant --force --ext .png " . $path);
             }
-
-            //move_uploaded_file($image["tmp_name"],$dir."/".$image["name"]."_mini_thumb.png");
         }
+    }
 
+    if ($newimage == true) {
+        die_redirect("produits.php?pictures=".$id);
     }
 
     require_once("includes/classes/widgets/FormWidget.php");
@@ -87,7 +110,7 @@ function displayPictureForm ($id) {
 
 
     require_once("includes/classes/widgets/TableWidget.php");
-    $table =
+
 
 
     $columns = array();
@@ -97,21 +120,27 @@ function displayPictureForm ($id) {
 
 
 
-    $galleryfile = lsfile($dirthumb);
-    $gallery = "";
-    for ($i=0;$i<count($galleryfile);$i++) {
+
+    $gallery = array();
+    for ($i=0;$i<count($gallerythumbfile);$i++) {
         $gallery[$i]["id"] = $i+1;
-        $gallery[$i]["name"] = $galleryfile[$i];
-        $gallery[$i]["image"] = "<img src=\"".$dirthumb."/".$galleryfile[$i]."\"></img>";
+        $gallery[$i]["name"] = $gallerythumbfile[$i];
+        $gallery[$i]["image"] = "<img src=\"".$dirthumb."/".$gallerythumbfile[$i]."\"></img>";
+        $gallery[$i]["background_color"] = ($i % 2 == 0 ? "#eee" : "#fff");
     }
 
+    $buttons = array(
 
-    $table = new TableWidget($gallery, T_("No element!"), "");
+        array("id" => "delete", "label" => "", "icon" => "trash", "tooltip" => T_("Delete"))
+    );
+
+
+    $table = new TableWidget($gallery, T_("No element!"), $buttons);
     $table->setActionsWidth(112);
     $table_gallery = $table->generate($columns, "id", 1, 1, "id", "DESC");
 
 
-
+    $TPL->assign("picture", $id);
     $TPL->assign("gallery", $table_gallery);
     $content_data = $TPL->fetch("content_produits_pictures.tpl");
     $page->setContent($content_data);
